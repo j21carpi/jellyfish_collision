@@ -20,12 +20,12 @@ function init() {
     const container = document.querySelector("#app");
     document.body.appendChild(container);
     camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.25, 200);
-    camera.position.set(40, 10, 0);
+    camera.position.set(10, 10, 0);
     scene = new Scene();
     clock = new THREE.Clock();
 
     // generate jellyfish
-    generateJellyFish(10, 10);
+    generateJellyFish(1, 1);
 
     // renderer
     renderer = new WebGLRenderer({ antialias: true });
@@ -134,7 +134,7 @@ function prepareAnimationJellyfish(jelly) {
  * @returns 
  */
 function move(x, boneIndex, childrenBones) {
-    const amplitude = -.001;
+    const amplitude = -.0015;
     const period = 4;
     const phaseOffset = Math.PI / childrenBones[0].length * 2;
     const phase = boneIndex * phaseOffset;

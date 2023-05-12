@@ -10,6 +10,8 @@ let bones = [];
 let allBones = [];
 const animations = new THREE.AnimationObjectGroup(); 
 
+let allJelly = [];
+
 init();
 animate();
 
@@ -20,12 +22,12 @@ function init() {
     const container = document.querySelector("#app");
     document.body.appendChild(container);
     camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.25, 200);
-    camera.position.set(40, 10, 0);
+    camera.position.set(10, 10, 0);
     scene = new Scene();
     clock = new THREE.Clock();
 
     // generate jellyfish
-    generateJellyFish(50, 30);
+    generateJellyFish(5, 4);
 
     // renderer
     renderer = new WebGLRenderer({ antialias: true });
@@ -47,6 +49,17 @@ function init() {
  * Animation de la scene
  */
 function animate() {
+
+    if (allJelly.length !=0){
+        const quaternion = new THREE.Quaternion();
+        quaternion.setFromAxisAngle(new THREE.Vector3(2,10,3), Math.PI*0.0001);
+        allJelly.forEach(element => {
+            element.translateOnAxis(new THREE.Vector3(0, 1, 0), 0.01)
+            element.applyQuaternion(quaternion);
+        })
+
+    }
+
     requestAnimationFrame(animate);
     var delta = clock.getDelta();
     if (mixer) mixer.update(delta);
@@ -78,10 +91,9 @@ function generateJellyFish(nb : number, position : number){
             loader.load("Jellyfish_bell_bones7.glb", function (gltf) {
                 
                 const element = gltf.scene;
+                allJelly.push(element);
                 element.position.set(getRandomInt(position),getRandomInt(position),getRandomInt(position))
                 scene.add(element)
-                const table = []
-                table.push(element)
                 prepareAnimationJellyfish(element)
                 
                 // Boucle pour créer les clones
@@ -90,9 +102,10 @@ function generateJellyFish(nb : number, position : number){
                     test.position.set(getRandomInt(position),getRandomInt(position),getRandomInt(position))
                     scene.add(test)
                     animations.add(test)   
-                    table.push(test)
+                    allJelly.push(test);
                     prepareAnimationJellyfish(test)
                 }
+                
 
                 // Ajout de l'animation de la cloche... Passé tant de temps sur ça...
                 animations.add(element)
