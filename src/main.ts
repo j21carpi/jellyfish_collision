@@ -10,7 +10,7 @@ let bones = [];
 let allBones = [];
 const animations = new THREE.AnimationObjectGroup(); 
 
-let allJelly = [];
+let allJelly : THREE.Object3D[] = [];
 
 init();
 animate();
@@ -27,7 +27,7 @@ function init() {
     clock = new THREE.Clock();
 
     // generate jellyfish
-    generateJellyFish(5, 4);
+    generateJellyFish(1, 1);
 
     // renderer
     renderer = new WebGLRenderer({ antialias: true });
@@ -50,16 +50,17 @@ function init() {
  */
 function animate() {
 
+    
     if (allJelly.length !=0){
         const quaternion = new THREE.Quaternion();
-        quaternion.setFromAxisAngle(new THREE.Vector3(2,10,3), Math.PI*0.0001);
+        quaternion.setFromAxisAngle(new THREE.Vector3(0,4,4), Math.PI*0.0001);
         allJelly.forEach(element => {
             element.translateOnAxis(new THREE.Vector3(0, 1, 0), 0.01)
             element.applyQuaternion(quaternion);
         })
 
     }
-
+    
     requestAnimationFrame(animate);
     var delta = clock.getDelta();
     if (mixer) mixer.update(delta);
