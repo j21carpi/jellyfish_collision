@@ -51,7 +51,7 @@ var aquariumsObject : { object : THREE.Object3D, position : THREE.Vector3, isCol
     */
 
 // Jellyfish propreties
-var numberJellyfish : number = 20;
+var numberJellyfish : number = 50;
 var speedAverage : number = 20;
 var directionModificationRate : number = 100;
 
@@ -80,13 +80,13 @@ function init() {
 
             const loader = new GLTFLoader().setPath("/assets/models/");
             loader.load("Jellyfish_bell_bones7.glb", function (gltf) {
-                const squid = gltf.scene;
 
                 //createAquarium();
                 var geometry = new THREE.BoxGeometry(aquarium*2, aquarium*2, aquarium*2);
                 var boxMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
                 var cone = new THREE.Mesh(geometry, boxMaterial);
                 cone.position.set(0, 0, 0);
+                
                 if (visible){
                     boxMap = new THREE.BoxHelper(cone, 0xffffff);
                     scene.add(boxMap);
@@ -94,6 +94,7 @@ function init() {
 
                 for (let index = 0; index < numberJellyfish; index++) {
                     const cone = addCone(getRandomNumber(aquarium), getRandomNumber(aquarium), getRandomNumber(aquarium));
+                    cone.geometry.computeBoundingBox();
                     data.push({
                         cone: cone,
                         speed: (10+getRandomInt(speedAverage))*0.0005,
@@ -101,7 +102,6 @@ function init() {
                         direction : new THREE.Vector3( 0, 0, 0),
                         isCollision : false
                     })
-                    cone.geometry.computeBoundingBox();
                 }
                 mixer = new THREE.AnimationMixer(gltf.scene);
                 gltf.animations.forEach((clip) => {
@@ -171,7 +171,7 @@ function animate() {
         // Collision avec l'aquarium, but du jeu : faire revenir la meduse dans l'aquarium sans la bloquer
         if (isCollision(object)) {
             if (!object.isCollision){
-                object.direction = new THREE.Vector3((object.speed*2000 + object.direction.x),0,(object.speed*2000 + object.direction.y));
+                object.direction = new THREE.Vector3(-(object.speed*2000 + object.direction.x),0,-(object.speed*2000 + object.direction.y));
                 quaternion.setFromAxisAngle(object.direction, Math.PI*0.00005);
                 object.cone.applyQuaternion(quaternion);
             }
