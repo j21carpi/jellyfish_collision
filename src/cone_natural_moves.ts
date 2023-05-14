@@ -13,6 +13,8 @@ var boxMap : THREE.BoxHelper = null;
 
 // Aquarium
 var aquarium : number = 20;
+var distanceAquarium : number = 0;
+/*
 var aquariumsObject : { object : THREE.Object3D, position : THREE.Vector3, isCollision : boolean}[] = 
 [
     {
@@ -45,10 +47,11 @@ var aquariumsObject : { object : THREE.Object3D, position : THREE.Vector3, isCol
         object : null,
         position : new THREE.Vector3(0, 0, -aquarium*2),
         isCollision : false
-    },
-]
+    },]
+    */
 
 // Jellyfish propreties
+var numberJellyfish : number = 20;
 var speedAverage : number = 20;
 var directionModificationRate : number = 100;
 
@@ -79,10 +82,18 @@ function init() {
             loader.load("Jellyfish_bell_bones7.glb", function (gltf) {
                 const squid = gltf.scene;
 
-                createAquarium();
+                //createAquarium();
+                var geometry = new THREE.BoxGeometry(aquarium*2, aquarium*2, aquarium*2);
+                var boxMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+                var cone = new THREE.Mesh(geometry, boxMaterial);
+                cone.position.set(0, 0, 0);
+                if (visible){
+                    boxMap = new THREE.BoxHelper(cone, 0xffffff);
+                    scene.add(boxMap);
+                }
 
-                for (let index = 0; index < 2; index++) {
-                    const cone = addCone(getRandomInt(aquarium), getRandomInt(aquarium), getRandomInt(aquarium));
+                for (let index = 0; index < numberJellyfish; index++) {
+                    const cone = addCone(getRandomNumber(aquarium), getRandomNumber(aquarium), getRandomNumber(aquarium));
                     data.push({
                         cone: cone,
                         speed: (10+getRandomInt(speedAverage))*0.0005,
@@ -98,8 +109,6 @@ function init() {
                 });
             });
         });
-
-        console.log(data)
 
     // renderer
     renderer = new WebGLRenderer({ antialias: true });
@@ -131,12 +140,11 @@ function animate() {
 
     var delta = clock.getDelta();
     if (mixer) mixer.update(delta);
-
     let t = clock.getElapsedTime();
 
     data.forEach((object, i) => {
- 
-        
+
+        // Movements aléatoires
         const quaternion = new THREE.Quaternion();
         if (!object.isCollision){
             switch (getRandomInt(directionModificationRate)){
@@ -155,42 +163,38 @@ function animate() {
             }
         }
 
+        // On garde le mouvement aléatoire et on l'applique
         object.cone.translateOnAxis(new THREE.Vector3(0, 1, 0), object.speed)
         quaternion.setFromAxisAngle(object.direction, Math.PI*0.00005);
         object.cone.applyQuaternion(quaternion);
 
-        data.forEach((d2 , j) => {
-            let distance = object.cone.position.distanceTo(d2.cone.position);
-
-            if (distance <= 10 && i != j) {
-                // Cas de collision
-                console.log("crash")
-                d2.direction = new THREE.Vector3(-d2.direction.x,0,-d2.direction.z);
-                quaternion.setFromAxisAngle(d2.direction, Math.PI*0.00005);
-                d2.cone.applyQuaternion(quaternion);
-
-                object.direction = new THREE.Vector3(-object.direction.x,0,-object.direction.z);
-                quaternion.setFromAxisAngle(object.direction, Math.PI*0.00005);
-                object.cone.applyQuaternion(quaternion);
-            }
-        });
-
-        if (isCollision) {
-            console.log("crash1")
+        // Collision avec l'aquarium, but du jeu : faire revenir la meduse dans l'aquarium sans la bloquer
+        if (isCollision(object)) {
             if (!object.isCollision){
-                console.log("crash")
-                object.direction = new THREE.Vector3(-(object.direction.x),0,-(object.direction.z));
+                object.direction = new THREE.Vector3((object.speed*2000 + object.direction.x),0,(object.speed*2000 + object.direction.y));
                 quaternion.setFromAxisAngle(object.direction, Math.PI*0.00005);
                 object.cone.applyQuaternion(quaternion);
             }
             object.isCollision = true
         }
 
-        if (!isCollision && object.isCollision){
-            console.log("crash2")
+        if (!isCollision(object) && object.isCollision){
             object.isCollision = false
         }
 
+        data.forEach((d2 , j) => {
+            let distance = object.cone.position.distanceTo(d2.cone.position);
+            if (distance <= 10 && i != j) {
+                // Cas de collision
+                d2.direction = new THREE.Vector3(-d2.direction.x,0,-d2.direction.z);
+                quaternion.setFromAxisAngle(d2.direction, Math.PI*0.00005);
+                d2.cone.applyQuaternion(quaternion);
+
+                object.direction = new THREE.Vector3(-object.direction.x,0,-object.direction.x);
+                quaternion.setFromAxisAngle(object.direction, Math.PI*0.00005);
+                object.cone.applyQuaternion(quaternion);
+            }
+        });
     })
 
     renderer.render(scene, camera);
@@ -208,6 +212,7 @@ function addCone (px, py, pz) {
     return cone;
 }
 
+/*
 function createAquarium(){
 
     var geometry = new THREE.BoxGeometry(aquarium*2, aquarium*2, aquarium*2);
@@ -230,14 +235,15 @@ function createAquarium(){
         }
     })    
 }
+*/
 
 function isCollision(object) : boolean {
-    return object.cone.position.x > (aquarium) 
-    || object.cone.position.x < (-aquarium) 
-    || object.cone.position.y > (aquarium) 
-    || object.cone.position.y < (-aquarium)            
-    || object.cone.position.z > (aquarium) 
-    || object.cone.position.z < (-aquarium);
+    return object.cone.position.x > (aquarium + distanceAquarium) 
+    || object.cone.position.x < (-aquarium + distanceAquarium) 
+    || object.cone.position.y > (aquarium + distanceAquarium) 
+    || object.cone.position.y < (-aquarium + distanceAquarium)            
+    || object.cone.position.z > (aquarium + distanceAquarium) 
+    || object.cone.position.z < (-aquarium + distanceAquarium);
 }
 
 /**
@@ -247,4 +253,10 @@ function isCollision(object) : boolean {
  */
 function getRandomInt(max) {
     return Math.floor(Math.random() * max);
+  }
+
+  function getRandomNumber(max) {
+    if (getRandomInt(2) == 1) return -Math.floor(Math.random() * max);
+    return Math.floor(Math.random() * max)
+    
   }
