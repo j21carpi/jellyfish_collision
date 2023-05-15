@@ -9,7 +9,6 @@ let renderer : WebGLRenderer, camera : PerspectiveCamera, scene : Scene;
 let bones = [];
 let allBones = [];
 const animations = new THREE.AnimationObjectGroup(); 
-
 let allJelly : THREE.Object3D[] = [];
 
 init();
