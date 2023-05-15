@@ -14,11 +14,11 @@ const visible : boolean = false;
 var boxMap : THREE.BoxHelper = null;
 
 // Aquarium
-const aquarium : number = 40;
+const aquarium : number = 20;
 const distanceAquarium : number = 0; // Prevoir la collision si on veux paroi
 
 // Jellyfish propreties
-const numberJellyfish : number = 40;
+const numberJellyfish : number = 10;
 const speedAverage : number = 20;
 const directionModificationRate : number = 100;
 const colorJellyfish : THREE.Color = new THREE.Color(0x5B48D9);
@@ -277,7 +277,7 @@ function generateJellyFish(nb : number){
                 }
                 
 
-                play('assets/musics/Music3.mp3');
+                play('assets/musics/Music1.mp3');
 
                 // Ajout de l'animation de la cloche... Passé tant de temps sur ça...
                 animations.add(element)
